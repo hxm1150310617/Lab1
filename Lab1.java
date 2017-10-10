@@ -5,7 +5,29 @@ import java.util.*;
 interface lab
 {
 	 digraph createDirectedGraph(String filename);//生成有向图 done
-
+	 void showDirectedGraph(digraph G);//展示有向图 done
+	 String queryBridgeWords(digraph G, String word1, String word2);// 查询桥接词done
+	 String generateNewText(digraph G, String inputText);//根据bridge word生成新文本 done
+	 String calcShortestPath(digraph G, String word1, String word2);//计算两个单词之间的最短路径 done
+	 String randomWalk(digraph G);//随机游走done
+	}
+class digraph implements lab
+{
+	public String[] refrence;//存放单词，以下标为单词节点编号
+	public int[][] list;//有向图的二维矩阵
+	public static int[] ifvisited;//访问标记数组
+	public static int times;//随机访问时的重复次数，作为全局变量
+	public static int sign;//当前随机到位置
+	public static int least;//最短路径的权值合
+ 	public digraph(int i)//定义一个字符串数组
+	{
+		this.refrence=new String[i];
+		this.list=new int[i][i];
+	}
+	public static void refreshifvisited(int i)//刷新访问数组，在使用之前调用一次
+	{
+		ifvisited=new int[i];
+	}
 	public static void refreshtimes()//重置重复次数，需要时调用
 	{times=0;}
 	public static void refreshleast()//重置最短路径合
