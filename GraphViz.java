@@ -18,30 +18,7 @@ public class GraphViz
   // private static String DOT = "/usr/bin/dot"; // Linux
    private static String DOT = "D:\\graphviz2.38\\bin\\dot.exe"; // Windows
 /**
-    */
-   public String getDotSource() {
-     
-      graph.append(line + "\n");
-   }
-/**
-    * Adds a newline to the graph's source.
-    */
-   public void addln() {
-      graph.append('\n');
-   }
-/**
-    * Returns the graph as an image in binary format.
-    * @param dot_source Source of the graph to be drawn.
-    * @param type Type of the output image to be produced, e.g.: gif, dot, fig, pdf, ps, svg, png.
-    * @return A byte array containing the image of the graph.
-    */
-   public byte[] getGraph(String dot_source, String type)
-   {
-      File dot;
-      byte[] img_stream = null;
-   
-      try {
-         dot = writeDotSourceToFile(dot_source);
+    */      dot = writeDotSourceToFile(dot_source);
          if (dot != null)
          {
             img_stream = get_img_stream(dot, type);
