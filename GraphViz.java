@@ -20,17 +20,7 @@ public class GraphViz
 /**
     */      dot = writeDotSourceToFile(dot_source);
          if (dot != null)
-         {
-            img_stream = get_img_stream(dot, type);
-            if (dot.delete() == false) 
-               System.err.println("Warning: " + dot.getAbsolutePath() + " could not be deleted!");
-            return img_stream;
-         }
-         return null;
-      } catch (java.io.IOException ioe) { return null; }
-   }
-/**
-    * Writes the graph's image in a file.
+        
     * @param img   A byte array containing the image of the graph.
     * @param file  Name of the file to where we want to write.
     * @return Success: 1, Failure: -1
