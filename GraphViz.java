@@ -18,32 +18,9 @@ public class GraphViz
   // private static String DOT = "/usr/bin/dot"; // Linux
    private static String DOT = "D:\\graphviz2.38\\bin\\dot.exe"; // Windows
 /**
-    * The source of the graph written in dot language.
-    */
- private StringBuilder graph = new StringBuilder();
-/**
-    * Constructor: creates a new GraphViz object that will contain
-    * a graph.
-    */
-   public GraphViz() {
-   }
-/**
-    * Returns the graph's source description in dot language.
-    * @return Source of the graph in dot language.
     */
    public String getDotSource() {
-      return graph.toString();
-   }
-/**
-    * Adds a string to the graph's source (without newline).
-    */
-   public void add(String line) {
-      graph.append(line);
-   }
-/**
-    * Adds a string to the graph's source (with newline).
-    */
-   public void addln(String line) {
+     
       graph.append(line + "\n");
    }
 /**
