@@ -26,36 +26,10 @@ class digraph implements lab
 	}
 	public static void refreshifvisited(int i)//刷新访问数组，在使用之前调用一次
 	{
-		ifvisited=new int[i];
-	}
-	public static void refreshtimes()//重置重复次数，需要时调用
-	{times=0;}
-	public static void refreshleast()//重置最短路径合
-	{least=0;}
-    public int GetLength()//得到数组的有效长度
-	{
-		for(int i=0;i<this.refrence.length;i++)
-		{
-			if(this.refrence[i]==null) return i;
-		}
+		
 		return 0;
 	}
-	public boolean IfHaveChild(String str)//是否存在相邻边，存在返回true
-	{
-		for (int i=0;i<this.GetLength();i++)
-		{
-			if(this.list[this.GetNum(str)][i]>0) return true;
-		}
-		return false;
-	}
-	public int GetNum(String str)//通过字符串查找对应的编号值
-	{
-		for(int j=0;j<this.GetLength();j++)
-		{   if(this.refrence[j]==null) return -1;
-			if(this.refrence[j].equals(str)==true) return j;
-		}
-		return -1;
-	}
+	publi
 	public void Add(int i,int j)//将对应的两个编号的权值+1，表示i->j有一条有向边
 	{
 		this.list[i][j]=this.list[i][j]+1;
