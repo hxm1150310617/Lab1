@@ -25,14 +25,7 @@ public class GraphViz
    }
 /**
     * Adds a newline to the graph's source.
-    */
-   public void addln() {
-      graph.append('\n');
-   }
-/**
-    * Returns the graph as an image in binary format.
-    * @param dot_source Source of the graph to be drawn.
-    * @param type Type of the output image to be produced, e.g.: gif, dot, fig, pdf, ps, svg, png.
+    */roduced, e.g.: gif, dot, fig, pdf, ps, svg, png.
     * @return A byte array containing the image of the graph.
     */
    public byte[] getGraph(String dot_source, String type)
