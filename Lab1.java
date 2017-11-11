@@ -1,11 +1,17 @@
 import java.io.*;
 import java.util.*;
-
-
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
+ 
 interface lab
 {
 	 digraph createDirectedGraph(String filename);//生成有向图 done
-	 void showDirectedGraph(digraph G);//展示有向图 done
+
 	 String queryBridgeWords(digraph G, String word1, String word2);// 查询桥接词done
 	 String generateNewText(digraph G, String inputText);//根据bridge word生成新文本 done
 	 String calcShortestPath(digraph G, String word1, String word2);//计算两个单词之间的最短路径 done
@@ -20,9 +26,11 @@ class digraph implements lab
 	public static int sign;//当前随机到位置
 	public static int least;//最短路径的权值合
  	public digraph(int i)//定义一个字符串数组
+
 	{
 		this.refrence=new String[i];
 		this.list=new int[i][i];
+		
 	}
 	public static void refreshifvisited(int i)//刷新访问数组，在使用之前调用一次
 	{
@@ -62,73 +70,148 @@ class digraph implements lab
 	}
 	public digraph createDirectedGraph(String filename)//创建有向图
 	{   
+		File file=new File(filename);//文件打开
+        if (!file.exists())//检验是否存在
+        {System.err.println("Not Fing the File!\n");}
        try//存在后进行文件操作
-       {
-   		   File file=new File(filename);//文件打开
-           if (!file.exists())//检验是否存在
-           {System.err.println("Not Fing the File!\n");}
-           
-    	    String line;
-			String reg = "\\s+";
-			String E ="[a-zA-Z]";
-			String word,preword=null;
-			int index=0;
-			
-			BufferedReader bf = new BufferedReader(new FileReader(file));
-			while((line = bf.readLine())!=null)  //一行一行读取
-			{
-				for(int i=0;i<line.length();i++)
-				{
-					char ch = line.charAt(i);
-					String ch1 = String.valueOf(ch);
-					if(!ch1.matches(E))           //将非英文字母字符用空格取代
-						line=line.replace(ch,' ');
-					
-				}
-				String []strs = line.split(reg);
-				for(int i=0;i<strs.length;i++)
-				{
-					word = strs[i];
-				    if(this.GetNum(word.toLowerCase().trim())==-1)//如果没有储存这个单词，则存入
-				    { 
-				       this.refrence[index]=(word.toLowerCase().trim());
-				        index++;
-				    }//有效单词存入参考数组中,同时大写转换
-				  
-			      if(preword!=null)//如果前一单词不为空，则前一单词到此单词的权值+1
-			      {  
-			         
-			    	  this.Add(this.GetNum(preword.toLowerCase().trim()),this.GetNum(word.toLowerCase().trim()) );
-			      }
-			      preword = word;
-			      //System.out.println(preword);
-				}
-		  }
-		 bf.close();  
+       {  
+    	   FileReader fr=new FileReader(filename);//文件读取
+    	   char[] buf=new char[102400];//存放文件中所有字符的字符串
+    	   char[] word=new char[30];//存放每个单词的字符串    	   
+    	   int i=0;int count=0;int index=0;
+    	   int num=0;
+    	   char[] preword=null;//前词
+    	   try{//读取文件内容
+    		   num=fr.read(buf);
+    		   fr.close();
+    		   while(count<=num)//从读取出的文件字符中筛选有效单词
+    		   {  
+    			  if(i==0&&(buf[count]<'a'||buf[count]>'z')&&(buf[count]<'A'||buf[count]>'Z'))
+    			  {count++;}
+    			  if((buf[count]>='a'&&buf[count]<='z')||(buf[count]>='A'&&buf[count]<='Z'))//条件
+    			  {   
+    				  word[i]=buf[count];  			      				  
+				  i++;
+				  count++;
+    			  }
+    			  else
+    			  {   
+    				  if(this.GetNum(new String(word).toLowerCase().trim())==-1)//如果没有储存这个单词，则存入
+    				  { 
+    				  this.refrence[index]=(new String(word).toLowerCase().trim());
+    				  index++;
+    				  }//有效单词存入参考数组中,同时大写转换
+    				  
+    			      if(preword!=null)//如果前一单词不为空，则前一单词到此单词的权值+1
+    			      {  
+    			         
+    			    	  this.Add(this.GetNum(new String(preword).toLowerCase().trim()),this.GetNum(new String(word).toLowerCase().trim()) );
+    			      }
+    			      
+    				  i=0;
+    				  count++;
+    				  preword=word;//更新前词
+    				  word=new char[30];//更新当前词
+    			  }
+    		   }
+    		    		      		      		       		   
+    		 }
+    	   catch(IOException e)
+    	   {e.printStackTrace();}
+    	   
+    	  
        }
-       catch (Exception e) {
+       catch (FileNotFoundException e) {
     	   e.printStackTrace();
     	  }
        return this;  
 	}
-	public void printdigraph(digraph G)//测试输出
+	/*public void queryBridgeWords(digraph G,String str1,String str2)//寻找桥接词
+	{   if(str1.equals(str2)==true) 
 	{
-		/*输出测试区*/
-		int index=G.GetLength();
-		System.out.println(index);
-		   for(int z=0;z<index;z++)
-		   { System.out.print("\""+G.refrence[z]+"\""+' ');}
-		     System.out.print('\n');
-		     for (int x=0;x<index;x++)
-		     {
-			   for(int y=0;y<index;y++)
-			   {
-				   System.out.print(G.list[x][y]+" ");
-			   }
-			   System.out.println("\n");
-		    }    		      		    
-    }
+		System.out.println("No bridge words from "+str1+" to "+str2+"! ");
+		return;
+	}
+	if(G.GetNum(str1)==-1||G.GetNum(str2)==-1)
+	{
+		System.out.println("No "+str1+" or "+str2+" in the graph! ");
+		return;
+	}
+	if(G.list[G.GetNum(str1)][G.GetNum(str2)]>0)
+	{System.out.println("No bridge words from "+str1+" to "+str2+"! ");
+	return;}
 	
+		Stack<String> stack=new Stack<String>();//定义一个栈，存放遍历过的节点
+		Stack<String> stackroute=new Stack<String>();//定义一个栈，存放可能正确的路径，按顺序存放要输出的节点
+		Stack<String> stackprint=new Stack<String>();//定义一个输出栈
+		int index_1=G.GetNum(str1);
+		int i;int judge,j;
+		String temp;int temp_index;
+		refreshifvisited(this.GetLength());//初始化访问数组
+		ifvisited[index_1]=1;
+		stack.push(str1);
+		while(stack.isEmpty()==false)//遍历有向图
+		{   judge=0;j=0;
+			temp=stack.pop();//top
+			stackroute.add(temp);//temp为当前访问到的节点，作为可能的正确路径之一加入到栈
+			temp_index=G.GetNum(temp);
+			if(temp.equals(str2))//判断是否为目标结点，是的话则找到目标路径，算法结束
+			  	{    System.out.print("The bridge words from "+str1+" to "+str2+" are: ");
+			  	stackroute.pop();
+			  	String top=stackroute.peek();
+				while(stackroute.isEmpty()==false)//打印路径,函数结束
+			  			{
+			  				stackprint.push(stackroute.pop());
+			  			}
+				stackprint.pop();
+				 System.out.print(stackprint.pop());
+			  		  while(stackprint.isEmpty()==false)
+			  		    {    String sp= stackprint.pop();
+			  		    if(sp.equals(top))
+			  		    { System.out.print(" and "+sp);}
+			  		    else
+			  			  {System.out.print(" , "+sp);}
+				
+			  		    }
+				return;
+			    }
+			for(i=0;i<G.GetLength();i++)//寻找存在的下一条边
+			{
+				if(G.list[temp_index][i]>0&&ifvisited[i]==0)//如果相邻并访问
+				{
+					stack.push(G.refrence[i]);//进栈
+					ifvisited[i]=1;//标记已访问
+					judge=1;//标记位，表示找到可行的下一节点
+				}
+			}
+			if(judge==0)//未找到可行节点的情况，说明此路径不可行
+			{   stackroute.pop();
+			if(stack.isEmpty()==true)//栈已经为空，说明已经没有可行解
+			{
+				System.out.println("No bridge words from "+str1+" to "+str2+"! ");
+				return;//没有桥接词
+			}
+				while(stackroute.isEmpty()==false&&j==0)//从队列尾端开始删除没有子节点的节点，说明必不是有效路径
+				{
+					for(i=0;i<G.GetLength();i++)//判断当前stackroute栈顶元素是否有可行路径
+					{
+						if(G.list[G.GetNum(stack.peek())][i]>0&&ifvisited[i]==0)
+						{
+							j=1;//如果还有可行路径，则stack栈中当前栈顶元素就为下一路径的可能正确解，继续上一步循环即可
+						}
+					}
+					if(j==0)//当前stackroute栈顶元素没有可行解，删除当前栈顶元素
+					{
+						stackroute.pop();
+					}
+				}
+			}	
+		}
+		System.out.println("No bridge words from "+str1+" to "+str2+"! ");
+		return;//没有桥接词
+		
+		
+	}*/
 	public String queryBridgeWords(digraph G, String word1, String word2)// 查询桥接词
 	{
 		int index1=G.GetNum(word1);int index2=G.GetNum(word2);
@@ -136,26 +219,27 @@ class digraph implements lab
 		else if(G.list[index1][index2]>0) return "No have";//相邻两词无桥接词
 		else
 		{			
-			ifvisited[index1]=1;ifvisited[index2]=1;
-			for(int i=0;i<G.GetLength();i++)//判断是否两词间有桥接词
+			G.ifvisited[index1]=1;G.ifvisited[index2]=1;
+			for(int i=0;i<G.GetLength();i++)//判断是否两次间有桥接词
 			{
 				if(G.list[index1][i]>0)
 				{					
-						if(G.list[i][index2]>0&&ifvisited[i]==0)//有且未被访问过
+						if(G.list[i][index2]>0&&G.ifvisited[i]==0)//有且未被访问过
 						{
-							ifvisited[i]=1;
+							G.ifvisited[i]=1;
 							return G.refrence[i];//输出有效词
 						}
+					
 				}
 			}
 		for(int j=0;j<G.GetLength();j++)//判断是否出现过有效词
 		{
 			if(j==index1||j==index2);
-			else if(ifvisited[j]==1) return "No more";//出现过	
+			else if(G.ifvisited[j]==1) return "No more";//出现过
+			
 		}
 		return "No have";//未出现过
 		}
-		
 	}
 	public String generateNewText(digraph G, String inputText)//根据bridge word生成新文本 
 	{
@@ -164,11 +248,11 @@ class digraph implements lab
 		String strbridge;//存放当前桥接词
 		String strconnect;//得出的有效桥接词
 		for(int i=0;i<sentence.length-1;i++)
-		{   refreshifvisited(G.GetLength());
+		{   G.refreshifvisited(G.GetLength());
 			strout=strout+sentence[i]+" ";
 			strbridge=G.queryBridgeWords(G, sentence[i], sentence[i+1]);
-			if(strbridge.equals("No in")||strbridge.equals("No have")) strconnect=" ";//如果两词间无桥接词，不需要插入新单词
-			else //如果两词间有桥接词，随机插入一个桥接词
+			if(strbridge.equals("No in")||strbridge.equals("No have")) strconnect=" ";//如果两次间无桥接词，不需要插入新单词
+			else //如果两次间有桥接词，随机插入一个桥接词
 			{
 				String[] bridgewords=new String[G.GetLength()];
                 int index=0;
@@ -180,8 +264,13 @@ class digraph implements lab
 					strbridge=G.queryBridgeWords(G, sentence[i], sentence[i+1]);
 				}
 				strconnect=bridgewords[random.nextInt(index)]+" ";
+				 
+				
+				
 			}
 			strout=strout+strconnect;
+			
+			
 		}
 		strout=strout+sentence[sentence.length-1];
 		return strout;
@@ -191,24 +280,22 @@ class digraph implements lab
 	{   int temp;
  		Random index=new Random();//生成一个范围内的随机数
 		temp=index.nextInt(G.GetLength());
-		if(IfHaveChild(G.refrence[sign])==false) return "end";//当前节点已无子结点，又走游走结束
-		if(G.list[sign][temp]>0&&ifvisited[temp]==0)//当前字符存在邻接字符并且未被访问
+		if(G.IfHaveChild(G.refrence[G.sign])==false) return "end";//当前节点已无子结点，又走游走结束
+		if(G.list[G.sign][temp]>0&&G.ifvisited[temp]==0)//当前字符存在邻接字符并且未被访问
 		{
-			ifvisited[temp]=1;//标记访问
-			//this.sign=temp;
-			//this.refreshtimes();
-			sign=temp;
-			refreshtimes();
+			G.ifvisited[temp]=1;//标记访问
+			this.sign=temp;
+			this.refreshtimes();
 			return G.refrence[temp];//当前字符为可输出字符，返回当前字符
-		}                  //this.sign
-		else if(G.list[sign][temp]>0&&ifvisited[temp]==1&&(times==0||times==1))//当前已经访问过但未重复，说明只出现重复单词，未必是出现重复句子，继续游走
-		{
-			ifvisited[temp]=1;//标记访问
-			sign=temp;
-			times++;
-			return refrence[temp];//当前字符为可输出字符，返回当前字符
 		}
-		else if(G.list[sign][temp]>0&&ifvisited[temp]==1&&times==2)//当前已经访问过并且已重复，说明出现重复句子，游走结束
+		else if(G.list[this.sign][temp]>0&&G.ifvisited[temp]==1&&(times==0||times==1))//当前已经访问过但未重复，说明只出现重复单词，未必是出现重复句子，继续游走
+		{
+			G.ifvisited[temp]=1;//标记访问
+			this.sign=temp;
+			times++;
+			return G.refrence[temp];//当前字符为可输出字符，返回当前字符
+		}
+		else if(G.list[this.sign][temp]>0&&G.ifvisited[temp]==1&&times==2)//当前已经访问过并且已重复，说明出现重复句子，游走结束
 		{
 			return "end";
 		}
@@ -219,7 +306,7 @@ class digraph implements lab
 	}
     public void showDirectedGraph(digraph G)//展示有向图
     {
-    	GraphViz gv = new GraphViz();
+    	/*GraphViz gv = new GraphViz();
         gv.addln(gv.start_graph());
         int index=G.GetLength();
         for(int i=0;i<index;i++)
@@ -228,68 +315,31 @@ class digraph implements lab
         	{
         		if(G.list[i][j]>0)
         		{
+        			System.out.println(G.list[i][j]);
         		    gv.addln(G.refrence[i]+"->"+G.refrence[j]+"[label=\""+G.list[i][j]+"\"];");
-        		   // gv.addln(G.refrence[i]+"->"+G.refrence[j]+"[label=\""+G.list[i][j]+"\",style=\"dashed\"];");
         		}
         	}
         }
         
         gv.addln(gv.end_graph());
-        System.out.println(gv.getDotSource());
-        
+        System.out.println(gv.getDotSource());       
         String type = "gif";
-        File out = new File("D:/graphviz2.38/workspace/out1."+type);
-        gv.writeGraphToFile( gv.getGraph( gv.getDotSource(), type ), out );
+//        String type = "dot";
+//        String type = "fig";    // open with xfig
+//        String type = "pdf";
+//        String type = "ps";
+//        String type = "svg";    // open with inkscape
+//        String type = "png";
+//        String type = "plain";
+//        File out = new File("/tmp/out." + type);   // Linux
+       // File out = new File("c:/eclipse.ws/graphviz-java-api/out ." + type);    // Windows
+        File out = new File("D:\\eclipse\\Lab1"+type);
+        gv.writeGraphToFile( gv.getGraph( gv.getDotSource(), type ), out );*/
     }
-    
-    //展示最短路径
-    public void showShortestRoute(digraph G, String route)//展示有向图
-    {
-    	String []routes=route.split("->");
-    	int flag;
-    	GraphViz gv = new GraphViz();
-        gv.addln(gv.start_graph());
-        int index=G.GetLength();
-        for(int i=0;i<index;i++)
-        {
-        	for(int j=0;j<index;j++)
-        	{
-        		if(G.list[i][j]>0)
-        		{
-        			//System.out.println(G.list[i][j]);
-        		    
-        		    flag=0;
-        		    for(int k=0;k<routes.length-1;k++)
-        		    {
-        		    	if(G.refrence[i].equals(routes[k])&&G.refrence[j].equals(routes[k+1]))
-        		    	{
-        		    		 gv.addln(G.refrence[i]+"->"+G.refrence[j]+"[label=\""+G.list[i][j]+"\",style=\"dashed\"];");
-        		    		 flag=1;
-        		    		 break;
-        		    	}
-        		    }
-        		    if(flag==0)
-        		    {
-        		    	 gv.addln(G.refrence[i]+"->"+G.refrence[j]+"[label=\""+G.list[i][j]+"\"];");
-        		    }
-        		    
-        		}
-        	}
-        }
-        
-        gv.addln(gv.end_graph());
-     //   System.out.println(gv.getDotSource());
-        
-        String type = "gif";
-        File out = new File("D:/graphviz2.38/workspace/out2."+type);
-        gv.writeGraphToFile( gv.getGraph( gv.getDotSource(), type ), out );
-    }
-    
     public String calcShortestPath(digraph G, String word1, String word2)//计算两个单词之间的最短路径 
-    {
-    	int num=G.GetLength();
-        int index1=G.GetNum(word1);int index2=G.GetNum(word2);
-        if(index1==-1||index2==-1) return "No way";
+    {       int num=G.GetLength();
+    int index1=G.GetNum(word1);int index2=G.GetNum(word2);
+    if(index1==-1||index2==-1) return "No way";
     	   int[][] A=new int[num][num];
     	   int[][] path=new int [num][num];
     	   int i,j,k,n=num;
@@ -316,7 +366,7 @@ class digraph implements lab
     			  }
     		  }
     	  }
-    	  least=A[index1][index2];//更新最短路径值
+    	  G.least=A[index1][index2];//更新最短路径值
     	  String str;
     	  str=G.ReturnBetweenWords(path, index1, index2);
     	  return str;
@@ -334,25 +384,24 @@ public class Lab1 {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		 Scanner input=new Scanner(System.in);
-        String filename=new String("D:\\graphviz2.38\\workspace\\test.txt");
+        String filename=new String("D:\\eclipse\\Lab1\\test.txt");
         String str1,str2,str3;
-        digraph nl=new digraph(100);//定义新的有向图类,同时初始化二维矩阵
+        digraph nl=new digraph(30);//定义新的有向图类,同时初始化二维矩阵
         nl=nl.createDirectedGraph(filename);//创建有向图
-        nl.printdigraph(nl);
         nl.showDirectedGraph(nl);
         /*查询桥接词*/
         System.out.println("Please input the words you want to search: ");
         str1=input.next();
-        input.nextLine();
+        input.next();
         str2=input.next();
-        input.nextLine();
-        digraph.refreshifvisited(nl.GetLength());   
+        input.next();
+        nl.refreshifvisited(nl.GetLength());   
         str3=nl.queryBridgeWords(nl, str1, str2);       
-        if(str3.equals("No in")) System.out.println("No \""+str1+"\" or \""+str2+"\" in the graph !");
-        else if(str3.equals("No have")) System.out.println("No bridge words from \""+str1+"\" to \""+str2+"\" !");
+        if(str3.equals("No in")) System.out.println("No "+str1+" or "+str2+" in the graph !");
+        else if(str3.equals("No have")) System.out.println("No bridge words from "+str1+" to "+str2+" !");
         else 
         {
-        	System.out.print("The bridge words from \""+str1+"\" to \""+str2+"\" are :"+str3);
+        	System.out.print("The bridge words from "+str1+" to "+str2+" are :"+str3);
         	 str3=nl.queryBridgeWords(nl, str1, str2);    
         	while(!str3.equals("No more")) 
         	{        		
@@ -360,7 +409,7 @@ public class Lab1 {
         		if(!str3.equals("No more")&&!str4.equals("No more")) 
         			{System.out.print(","+str3);str3=str4;}
         		else if(!str3.equals("No more")&&str4.equals("No more"))
-        			{System.out.print(" and "+str3);str3=str4;}
+        			{System.out.print("and "+str3);str3=str4;}
         	}
         }
         System.out.println("\n**********************************************");
@@ -368,12 +417,12 @@ public class Lab1 {
         System.out.println("Now begin the random waklind.");
         Random random=new Random();
         String result=new String();
-        //String strin=new String("Yes");//输入字符，判断是否继续遍历
-        digraph.sign=random.nextInt(nl.GetLength());//生成一个初始游走位置
-        digraph.refreshifvisited(nl.GetLength());
-        digraph.refreshtimes();
-        digraph.ifvisited[digraph.sign]=1;//标记为已访问
-        System.out.print(nl.refrence[digraph.sign]+" ");
+        String strin=new String("Yes");//输入字符，判断是否继续遍历
+        nl.sign=random.nextInt(nl.GetLength());//生成一个初始游走位置
+        nl.refreshifvisited(nl.GetLength());
+        nl.refreshtimes();
+        nl.ifvisited[nl.sign]=1;//标记为已访问
+        System.out.print(nl.refrence[nl.sign]+" ");
         while(!result.equals("end"))//未出现结束标志时
         {    result=nl.randomWalk(nl);
         	if(!result.equals("continue")&&!result.equals("end")) 
@@ -402,10 +451,10 @@ public class Lab1 {
         System.out.println("**********************************************");
         /*最短路径搜索*/
         System.out.println("Please input the words you want to search for the least cost: ");
-        String str5,str6,str7;
+        String str5,str6;
         str5=input.next();
         str6=input.next();
-        digraph.refreshleast();
+        nl.refreshleast();
         String strcheapestroute=new String();
         strcheapestroute=nl.calcShortestPath(nl, str5, str6);
         if(strcheapestroute.equals("No way"))//如果路径不存在
@@ -414,34 +463,10 @@ public class Lab1 {
         }
         else{
         System.out.println("The least cost way is :"+strcheapestroute+str6);
-        nl.showShortestRoute(nl,strcheapestroute+str6);
-        System.out.println("The least cost is: " +digraph.least);}
+        System.out.println("The least cost is: " +nl.least);}
         System.out.println("**********************************************");
-        
-        //单源最短路径
-        System.out.println("Please input a word you want to search for the least cost: ");
-        str7=input.next();
-        int index=nl.GetNum(str7);
-        for(int i=0;i<nl.GetLength();i++)
-        {
-        	if(i!=index)
-        	{
-        digraph.refreshleast();
-        String strcheapestroute1=new String();
-        strcheapestroute1=nl.calcShortestPath(nl, str7,nl.refrence[i]);
-        if(strcheapestroute1.equals("No way"))//如果路径不存在
-        {
-        	System.out.println("No route bewteen the words!");
-        }
-        else{
-        System.out.println("The least cost way is :"+strcheapestroute1+nl.refrence[i]);
-       // nl.showShortestRoute(nl,strcheapestroute1+str6);
-        System.out.println("The least cost is: " +digraph.least);}
-        System.out.println("**********************************************");
-        	}
-        }
         input.close();
-     //   System.out.println("\nHello World!");
+        System.out.println("\nHello World!");
      
 
 	}
